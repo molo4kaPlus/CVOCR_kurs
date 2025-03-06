@@ -1,0 +1,48 @@
+cmake_minimum_required(VERSION 3.30)
+
+project(CVOCRkurs VERSION 0.1)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+add_executable(CVOCRkurs)
+
+set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    CACHE STRING "Vcpkg toolchain file")
+
+include(C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
+include(C:/vcpkg/scripts/cmake/vcpkg_copy_tool_dependencies.cmake)
+
+find_package(tesseract CONFIG REQUIRED)
+find_package(OpenCV REQUIRED)
+
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF) 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/@TARGET_TRIPLET@/share/@PORT@")
+
+file(GLOB_RECURSE CVOCRkurs_SOURCES CONFIGURE_DEPENDS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.inl"
+)
+
+target_sources(CVOCRkurs PRIVATE ${CVOCRkurs_SOURCES})
+
+target_include_directories(CVOCRkurs PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(CVOCRkurs PRIVATE 
+    Tesseract::libtesseract
+    ${OpenCV_LIBS}
+)
+
+target_compile_options(CVOCRkurs PRIVATE
+    /W3
+    /MP # multithreaded build
+    # /WX # warnings as errors
+    /ZI # program database for edit and continue
+)
+
+vcpkg_copy_tool_dependencies(<${CURRENT_PACKAGES_DIR}/tools/${PORT}>)
